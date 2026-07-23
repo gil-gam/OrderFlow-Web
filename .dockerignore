@@ -1,0 +1,16 @@
+node_modules/
+.git/
+.angular/
+.cache/
+dist/
+coverage/
+*.md
+.gitignore
+.editorconfig
+.gitkeep
+.DS_Store
+Thumbs.db
+*.log
+*.zip
+*.tar.gz
+.gitattributes
