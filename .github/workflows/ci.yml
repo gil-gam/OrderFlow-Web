@@ -2,11 +2,11 @@ name: CI — OrderFlow Web
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
     paths-ignore:
-      - "**.md"
-      - ".gitignore"
-      - "LICENSE"
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
   pull_request:
     branches: [main]
 
