@@ -35,6 +35,9 @@ describe('authGuard', () => {
     setup(false);
     const result = TestBed.runInInjectionContext(() => authGuard({} as any, { url: '/dashboard' } as any));
     expect(result).toBeFalse();
-    expect(router.navigate).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/auth/login'],
+      { queryParams: { redirect: '/dashboard' } }
+    );
   });
 });

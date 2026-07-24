@@ -45,7 +45,11 @@ describe('OrderService', () => {
   });
 
   it('should DELETE /api/Orders/:id', () => {
-    service.delete('1').subscribe();
-    httpMock.expectOne('/api/Orders/1').flush(null);
+    service.delete('1').subscribe(response => {
+      expect(response).toBeNull();
+    });
+    const req = httpMock.expectOne('/api/Orders/1');
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
   });
 });

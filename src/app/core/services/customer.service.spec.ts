@@ -57,7 +57,11 @@ describe('CustomerService', () => {
   });
 
   it('should DELETE /api/customers/:id', () => {
-    service.delete('1').subscribe();
-    httpMock.expectOne('/api/customers/1').flush(null);
+    service.delete('1').subscribe(response => {
+      expect(response).toBeNull();
+    });
+    const req = httpMock.expectOne('/api/customers/1');
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
   });
 });
