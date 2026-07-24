@@ -46,7 +46,11 @@ describe('CategoryService', () => {
   });
 
   it('should DELETE /api/categories/:id', () => {
-    service.delete('1').subscribe();
-    httpMock.expectOne('/api/categories/1').flush(null);
+    service.delete('1').subscribe(response => {
+      expect(response).toBeNull();
+    });
+    const req = httpMock.expectOne('/api/categories/1');
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
   });
 });
