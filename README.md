@@ -173,12 +173,12 @@ git clone https://github.com/gil-gam/OrderFlow-Api.git
 git clone https://github.com/gil-gam/OrderFlow-Web.git
 ```
 
-2. Run the setup script
+### 2. Run the setup script
 
 ```bash
 cd orderflow/OrderFlow-Web
 ```
-*Abra a pasta com Git Bash e execute os comandos do Linux:*
+*Open the folder with **Git Bash** and run:*
 ```bash 
 chmod +x setup.sh
 ./setup.sh
@@ -193,9 +193,9 @@ The script automates everything:
 | 3 | Applies EF Core migrations |
 | 4 | Starts the API (dotnet run on port 5220) |
 | 5 | Installs frontend dependencies (npm ci) |
-| 6 | tarts Angular dev server (ng serve on port 4200) |
+| 6 | Starts Angular dev server (ng serve on port 4200) |
 
-3. Access the application
+### 3. Access the application
 
 | Service | URL |
 |---|---|
@@ -204,7 +204,13 @@ The script automates everything:
 | Database | localhost:5432 (user: orderflow, password: orderflow123) |
 
 
-4. First-time usage
+#### 3.1. and then, if you need new access again, run (Git Bash):
+
+- go to the api directory and run: *git restore .*
+- go to the web directory and run: *./setup.sh*
+
+
+### 4. First-time usage
 
 - Register a new user at /auth/register
 - Login at /auth/login
