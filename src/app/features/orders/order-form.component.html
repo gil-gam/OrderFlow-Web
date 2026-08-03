@@ -14,12 +14,10 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
     <div>
       <label for="customer" class="mb-1.5 block text-sm font-medium text-slate-300">Customer</label>
-      <select id="customer" formControlName="customerId"
-              class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
-              [class.border-red-500]="form.get('customerId')?.invalid && (form.get('customerId')?.dirty || form.get('customerId')?.touched)">
-        <option value="">Select a customer...</option>
-        @for (c of customers(); track c.id) {
-        <option [value]="c.id">{{ c.name }} ({{ c.email }})</option>
+      <select formControlName="productId" class="...">
+        <option value="" disabled>Select a product</option>
+        @for (p of products(); track p.id) {
+        <option [value]="p.id">{{ p.name }} — {{ p.unitPrice | currency: p.currency }}</option>
         }
       </select>
       <of-validation-error [control]="form.get('customerId')" />

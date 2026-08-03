@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { RouterLink, DatePipe, CurrencyPipe, SlicePipe } from '@angular/common';
+import { DatePipe, CurrencyPipe, SlicePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { OrderService } from '../../core/services/order.service';
 import { ProductService } from '../../core/services/product.service';
@@ -52,7 +53,8 @@ export class DashboardComponent implements OnInit {
       categories: this.categoryService.getAll(),
     }).subscribe({
       next: ({ orders, products, customers, categories }) => {
-        this.buildDashboard(orders, products, customers, categories);
+        // getAll() de orders retorna PaginatedList; usamos .items
+        this.buildDashboard(orders.items, products, customers, categories);
         this.loading.set(false);
       },
       error: (err) => {
@@ -67,7 +69,7 @@ export class DashboardComponent implements OnInit {
     customers: Customer[], categories: Category[]
   ): void {
     const sorted = [...orders].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      (a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
     );
     this.recentOrders.set(sorted.slice(0, 5));
 

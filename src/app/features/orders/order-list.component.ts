@@ -37,8 +37,9 @@ export class OrderListComponent implements OnInit {
     this.state.set('loading');
     this.orderService.getAll().subscribe({
       next: (data) => {
-        this.orders.set(data);
-        this.state.set(data.length ? 'ready' : 'empty');
+        // getAll() retorna PaginatedList → usamos .items
+        this.orders.set(data.items);
+        this.state.set(data.items.length ? 'ready' : 'empty');
       },
       error: (err) => {
         this.errorMessage.set(err.message);
@@ -51,8 +52,8 @@ export class OrderListComponent implements OnInit {
     this.router.navigate(['/orders/new']);
   }
 
-  badgeClass(status: OrderStatus): string {
-    const map: Record<OrderStatus, string> = {
+  badgeClass(status: string): string {
+    const map: Record<string, string> = {
       Pending: 'badge-warning', Confirmed: 'badge-info', Processing: 'badge-info',
       Shipped: 'badge-info', Delivered: 'badge-success', Cancelled: 'badge-danger',
     };
