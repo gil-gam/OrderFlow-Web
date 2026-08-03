@@ -5,12 +5,11 @@ import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
 import { Category } from '../../core/models/category.model';
 import { CreateProductRequest, UpdateProductRequest } from '../../core/models/product.model';
-import { ValidationErrorComponent } from '../../shared/components/validation-error.component';
 
 @Component({
   selector: 'of-product-form',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, ValidationErrorComponent],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './product-form.component.html',
 })
 export class ProductFormComponent implements OnInit {
@@ -29,8 +28,8 @@ export class ProductFormComponent implements OnInit {
     name: ['', [Validators.required, Validators.maxLength(200)]],
     description: ['', [Validators.maxLength(1000)]],
     categoryId: ['', Validators.required],
-    unitPrice: [0, [Validators.required, Validators.min(0.01)]],
-    currency: ['BRL', [Validators.required, Validators.maxLength(3)]],
+    price: [0, [Validators.required, Validators.min(0.01)]],
+    stockQuantity: [0, [Validators.required, Validators.min(0)]],
   });
 
   ngOnInit(): void {
@@ -47,8 +46,8 @@ export class ProductFormComponent implements OnInit {
           name: p.name,
           description: p.description,
           categoryId: p.categoryId,
-          unitPrice: p.unitPrice,
-          currency: p.currency,
+          price: p.unitPrice,
+          stockQuantity: p.stockQuantity ?? 0,
         });
       });
     }
@@ -60,7 +59,14 @@ export class ProductFormComponent implements OnInit {
     this.submitting.set(true);
     this.error.set(null);
 
-    const request = this.form.getRawValue() as CreateProductRequest;
+    const raw = this.form.getRawValue();
+    const request: CreateProductRequest = {
+      name: raw.name,
+      description: raw.description,
+      categoryId: raw.categoryId,
+      unitPrice: raw.price,
+      currency: 'USD',
+    };
     const id = this.route.snapshot.paramMap.get('id');
 
     const obs = id

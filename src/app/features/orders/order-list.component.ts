@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { CurrencyPipe, DatePipe, SlicePipe } from '@angular/common';
+import { Router } from '@angular/router';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { OrderService } from '../../core/services/order.service';
 import { Order, OrderStatus } from '../../core/models/order.model';
 import { PageHeaderComponent } from '../../shared/components/page-header.component';
@@ -12,11 +12,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.c
 @Component({
   selector: 'of-order-list',
   standalone: true,
-  imports: [
-    RouterLink, CurrencyPipe, DatePipe, SlicePipe,
-    PageHeaderComponent, LoadingStateComponent,
-    EmptyStateComponent, ErrorStateComponent, ConfirmDialogComponent,
-  ],
+  imports: [CurrencyPipe, DatePipe],
   templateUrl: './order-list.component.html',
 })
 export class OrderListComponent implements OnInit {
@@ -52,8 +48,8 @@ export class OrderListComponent implements OnInit {
     this.router.navigate(['/orders/new']);
   }
 
-  badgeClass(status: string): string {
-    const map: Record<string, string> = {
+  badgeClass(status: OrderStatus): string {
+    const map: Record<OrderStatus, string> = {
       Pending: 'badge-warning', Confirmed: 'badge-info', Processing: 'badge-info',
       Shipped: 'badge-info', Delivered: 'badge-success', Cancelled: 'badge-danger',
     };

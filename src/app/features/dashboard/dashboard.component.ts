@@ -1,6 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { DatePipe, CurrencyPipe, SlicePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { DatePipe, CurrencyPipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { OrderService } from '../../core/services/order.service';
 import { ProductService } from '../../core/services/product.service';
@@ -23,7 +22,7 @@ interface StatCard {
 @Component({
   selector: 'of-dashboard',
   standalone: true,
-  imports: [RouterLink, DatePipe, CurrencyPipe, SlicePipe, LoadingStateComponent],
+  imports: [DatePipe, CurrencyPipe],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {

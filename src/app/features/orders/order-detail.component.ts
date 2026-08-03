@@ -1,15 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DatePipe, CurrencyPipe, SlicePipe } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { DatePipe, CurrencyPipe } from '@angular/common';
 import { OrderService } from '../../core/services/order.service';
-import { Order } from '../../core/models/order.model';
-import { LoadingStateComponent } from '../../shared/components/loading-state.component';
-import { ErrorStateComponent } from '../../shared/components/error-state.component';
+import { Order, OrderStatus } from '../../core/models/order.model';
 
 @Component({
   selector: 'of-order-detail',
   standalone: true,
-  imports: [RouterLink, DatePipe, CurrencyPipe, SlicePipe, LoadingStateComponent, ErrorStateComponent],
+  imports: [DatePipe, CurrencyPipe],
   templateUrl: './order-detail.component.html',
 })
 
@@ -33,8 +31,8 @@ export class OrderDetailComponent implements OnInit {
     });
   }
 
-  badgeClass(status: string): string {
-    const map: Record<string, string> = {
+  badgeClass(status: OrderStatus): string {
+    const map: Record<OrderStatus, string> = {
       Pending: 'badge-warning', Confirmed: 'badge-info', Processing: 'badge-info',
       Shipped: 'badge-info', Delivered: 'badge-success', Cancelled: 'badge-danger',
     };

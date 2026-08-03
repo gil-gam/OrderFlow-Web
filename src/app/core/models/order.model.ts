@@ -4,11 +4,18 @@ export interface Order {
   id: string;
   customerId: string;
   customerName: string;
-  status: string;
+  status: OrderStatus;
   totalAmount: number;
   currency: string;
   itemCount: number;
   orderDate: string;
+  items?: {
+    productId: string;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }[];
 }
 
 export interface CreateOrderRequest {

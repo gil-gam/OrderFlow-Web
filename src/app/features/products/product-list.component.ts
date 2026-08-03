@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { ProductService } from '../../core/services/product.service';
 import { Product } from '../../core/models/product.model';
@@ -12,10 +12,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.c
 @Component({
   selector: 'of-product-list',
   standalone: true,
-  imports: [
-    RouterLink, CurrencyPipe, PageHeaderComponent, LoadingStateComponent,
-    EmptyStateComponent, ErrorStateComponent, ConfirmDialogComponent,
-  ],
+  imports: [CurrencyPipe],
   templateUrl: './product-list.component.html',
 })
 export class ProductListComponent implements OnInit {

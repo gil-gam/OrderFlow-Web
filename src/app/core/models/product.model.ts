@@ -7,6 +7,10 @@ export interface Product {
   categoryId: string;
   isActive: boolean;
   createdAt: string;
+  // Optional aliases used by templates
+  price?: number;
+  categoryName?: string;
+  stockQuantity?: number;
 }
 
 export interface CreateProductRequest {
