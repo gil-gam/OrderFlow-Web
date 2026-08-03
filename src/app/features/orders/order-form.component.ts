@@ -5,6 +5,7 @@ import { CurrencyPipe } from '@angular/common';
 import { OrderService } from '../../core/services/order.service';
 import { CustomerService } from '../../core/services/customer.service';
 import { ProductService } from '../../core/services/product.service';
+import { CreateOrderRequest, OrderItemRequest } from '../../core/models/order.model';
 import { Customer } from '../../core/models/customer.model';
 import { Product } from '../../core/models/product.model';
 import { ValidationErrorComponent } from '../../shared/components/validation-error.component';
@@ -16,8 +17,6 @@ import { LoadingStateComponent } from '../../shared/components/loading-state.com
   imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, ValidationErrorComponent, LoadingStateComponent],
   templateUrl: './order-form.component.html',
 })
-
-
 export class OrderFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly orderService = inject(OrderService);
@@ -33,11 +32,16 @@ export class OrderFormComponent implements OnInit {
 
   readonly form = this.fb.nonNullable.group({
     customerId: ['', Validators.required],
+    street: ['', Validators.required],
+    city: ['', Validators.required],
+    state: ['', Validators.required],
+    zipCode: ['', Validators.required],
+    country: ['', Validators.required],
     items: this.fb.array<ReturnType<typeof this.createItemGroup>>([]),
   });
 
-  get items() {
-    return this.form.controls.items as FormArray;
+  get items(): FormArray {
+    return this.form.controls.items;
   }
 
   private createItemGroup() {
@@ -56,10 +60,13 @@ export class OrderFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.customerService.getAll().subscribe((cs) => this.customers.set(cs));
-    this.productService.getAll().subscribe((ps) => {
-      this.products.set(ps.filter((p) => p.isActive));
-      this.loading.set(false);
+    this.customerService.getAll().subscribe({
+      next: (cs) => this.customers.set(cs),
+      error: () => { this.loading.set(false); this.error.set('Failed to load customers.'); },
+    });
+    this.productService.getAll().subscribe({
+      next: (ps) => { this.products.set(ps); this.loading.set(false); },
+      error: () => { this.loading.set(false); this.error.set('Failed to load products.'); },
     });
   }
 
@@ -69,12 +76,32 @@ export class OrderFormComponent implements OnInit {
     this.submitting.set(true);
     this.error.set(null);
 
-    this.orderService.create(this.form.getRawValue() as any).subscribe({
+    const raw = this.form.getRawValue();
+
+    const items: OrderItemRequest[] = raw.items.map((item: any) => {
+      const product = this.products().find((p) => p.id === item.productId);
+      return {
+        productId: item.productId,
+        productName: product?.name ?? '',
+        quantity: item.quantity,
+        unitPrice: product?.unitPrice ?? 0,
+        currency: product?.currency ?? 'BRL',
+      };
+    });
+
+    const request: CreateOrderRequest = {
+      customerId: raw.customerId,
+      street: raw.street,
+      city: raw.city,
+      state: raw.state,
+      zipCode: raw.zipCode,
+      country: raw.country,
+      items,
+    };
+
+    this.orderService.create(request).subscribe({
       next: () => this.router.navigate(['/orders']),
-      error: (err) => {
-        this.error.set(err.message);
-        this.submitting.set(false);
-      },
+      error: (err) => { this.error.set(err.message); this.submitting.set(false); },
     });
   }
 }

@@ -7,7 +7,7 @@ import { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../model
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/api/categories`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/1.0/categories`;
 
   getAll(): Observable<Category[]> {
     return this.http.get<Category[]>(this.baseUrl);

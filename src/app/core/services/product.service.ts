@@ -7,7 +7,7 @@ import { Product, CreateProductRequest, UpdateProductRequest } from '../models/p
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/api/products`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/1.0/products`;
 
   getAll(): Observable<Product[]> {
     return this.http.get<Product[]>(this.baseUrl);

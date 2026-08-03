@@ -2,16 +2,13 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { RegisterRequest } from '../../core/models/auth.model';
 import { ValidationErrorComponent } from '../../shared/components/validation-error.component';
 
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-  const password = control.get('password');
-  const confirm = control.get('confirmPassword');
-  if (password && confirm && password.value !== confirm.value) {
-    confirm.setErrors({ passwordMismatch: true });
-    return { passwordMismatch: true };
-  }
-  return null;
+  const password = control.get('password')?.value;
+  const confirmPassword = control.get('confirmPassword')?.value;
+  return password === confirmPassword ? null : { passwordMismatch: true };
 }
 
 @Component({
@@ -30,6 +27,7 @@ export class RegisterComponent {
 
   readonly form = this.fb.nonNullable.group(
     {
+      name: ['', [Validators.required, Validators.maxLength(200)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
@@ -43,8 +41,14 @@ export class RegisterComponent {
     this.submitting.set(true);
     this.error.set(null);
 
-    this.auth.register(this.form.getRawValue() as any).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+    const request: RegisterRequest = {
+      name: this.form.controls.name.value,
+      email: this.form.controls.email.value,
+      password: this.form.controls.password.value,
+    };
+
+    this.auth.register(request).subscribe({
+      next: () => this.router.navigate(['/auth/login']),
       error: (err) => {
         this.error.set(err.message || 'Registration failed. Please try again.');
         this.submitting.set(false);

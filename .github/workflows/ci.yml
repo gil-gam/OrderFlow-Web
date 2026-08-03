@@ -1,18 +1,13 @@
-name: CI — OrderFlow Web
+name: CI
 
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - '**.md'
-      - '.gitignore'
-      - 'LICENSE'
   pull_request:
     branches: [main]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: read
 
 env:
   NODE_VERSION: "22"
@@ -30,7 +25,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: npm
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
@@ -51,10 +46,3 @@ jobs:
 
       - name: Build (production)
         run: npm run build -- --configuration production
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/OrderFlow-Web/
-          retention-days: 7

@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe, SlicePipe } from '@angular/common';
 import { OrderService } from '../../core/services/order.service';
 import { Order, OrderStatus } from '../../core/models/order.model';
@@ -19,10 +19,9 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.c
   ],
   templateUrl: './order-list.component.html',
 })
-
-
 export class OrderListComponent implements OnInit {
   private readonly orderService = inject(OrderService);
+  private readonly router = inject(Router);
 
   readonly orders = signal<Order[]>([]);
   readonly state = signal<'loading' | 'error' | 'empty' | 'ready'>('loading');
@@ -30,14 +29,16 @@ export class OrderListComponent implements OnInit {
   readonly showDeleteConfirm = signal(false);
   readonly deletingOrder = signal<Order | null>(null);
 
-  ngOnInit(): void { this.loadOrders(); }
+  ngOnInit(): void {
+    this.loadOrders();
+  }
 
   loadOrders(): void {
     this.state.set('loading');
     this.orderService.getAll().subscribe({
       next: (data) => {
         this.orders.set(data);
-        this.state.set(data.length === 0 ? 'empty' : 'ready');
+        this.state.set(data.length ? 'ready' : 'empty');
       },
       error: (err) => {
         this.errorMessage.set(err.message);
@@ -46,7 +47,9 @@ export class OrderListComponent implements OnInit {
     });
   }
 
-  navigateToNew(): void { }
+  navigateToNew(): void {
+    this.router.navigate(['/orders/new']);
+  }
 
   badgeClass(status: OrderStatus): string {
     const map: Record<OrderStatus, string> = {
@@ -65,6 +68,12 @@ export class OrderListComponent implements OnInit {
     const order = this.deletingOrder();
     if (!order) return;
     this.showDeleteConfirm.set(false);
-    this.orderService.delete(order.id).subscribe(() => this.loadOrders());
+    this.orderService.delete(order.id).subscribe({
+      next: () => this.loadOrders(),
+      error: (err) => {
+        this.errorMessage.set(err.message);
+        this.state.set('error');
+      },
+    });
   }
 }

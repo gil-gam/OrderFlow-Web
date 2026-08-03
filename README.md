@@ -12,7 +12,7 @@
 
 <p align="center">
   <strong>Production-grade Order Management System</strong><br/>
-  Frontend: Angular 18 | Backend: .NET 10 | Database: PostgreSQL 16
+  Frontend: Angular 22 | Backend: .NET 10 | Database: PostgreSQL 16
 </p>
 
 <p align="center">
@@ -49,7 +49,7 @@
 
 | Layer | Technology | Highlights |
 |---|---|---|
-| **Frontend** | Angular 18 | Standalone Components, Signals, Reactive Forms, Tailwind CSS |
+| **Frontend** | Angular 22 | Standalone Components, Signals, Reactive Forms, Tailwind CSS |
 | **Backend** | .NET 10 | Clean Architecture, CQRS (MediatR), JWT Auth, OpenTelemetry |
 | **Database** | PostgreSQL 16 | EF Core 10, Npgsql, Migrations |
 | **Infrastructure** | Docker / Nginx | Multi-stage build, CI/CD, GitHub Container Registry |
@@ -116,8 +116,8 @@ orderflow-web/
 
 | Category | Technology |
 |---|---|
-| **Framework** | Angular 18 (Standalone Components) |
-| **Language** | TypeScript 5.x |
+| **Framework** | Angular 22 (Standalone Components) |
+| **Language** | TypeScript 6.0.2 |
 | **State Management** | Signals (`signal`, `computed`) |
 | **UI** | Tailwind CSS 3.x |
 | **Forms** | Reactive Forms with FormArray (Orders) |
@@ -334,7 +334,7 @@ The production Nginx configuration includes:
 |---|---|
 | Framework Preset | Angular |
 | Build Command | npm run build |
-| Output Directory | dist/order-flow-web/browser |
+| Output Directory | dist/OrderFlow-Web/browser |
 | Node Version | 22.x |
 
 
@@ -360,5 +360,5 @@ Gilberto Andreatta
 <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="Gilberto Andreatta" />
 
 #
-Built with .NET 10 · Angular 18 · PostgreSQL 16 · Docker · GitHub Actions
+Built with .NET 10 · Angular 22 · PostgreSQL 16 · Docker · GitHub Actions
 

@@ -1,16 +1,15 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, tap, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
+import { LoginRequest, RegisterRequest, AuthResponse, RegisterResponse } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly apiUrl = `${environment.apiBaseUrl}/api/Auth`;
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/1.0/Auth`;
 
   private readonly tokenSignal = signal<string | null>(this.loadToken());
   readonly isAuthenticated = computed(() => this.tokenSignal() !== null);
@@ -35,9 +34,8 @@ export class AuthService {
     );
   }
 
-  register(request: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request).pipe(
-      tap((res) => this.persistToken(res.token)),
+  register(request: RegisterRequest): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, request).pipe(
       catchError((err) => {
         console.error('[AuthService] Register failed', err);
         return throwError(() => err);

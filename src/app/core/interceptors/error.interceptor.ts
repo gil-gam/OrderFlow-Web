@@ -9,12 +9,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
+      const isAuthRequest = req.url.includes('/api/Auth/');
+
+      if (error.status === 401 && !isAuthRequest) {
         auth.logout();
       }
 
       const message = extractErrorMessage(error);
-      console.error(`[HTTP Error] ${error.status}: ${message}`, error);
 
       return throwError(() => ({
         status: error.status,
@@ -26,12 +27,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 };
 
 function extractErrorMessage(error: HttpErrorResponse): string {
-  if (error.error?.message) return error.error.message;
-  if (error.error?.title) return error.error.title;
-  if (typeof error.error === 'string') return error.error;
   if (error.status === 0) return 'Unable to reach the server. Check your connection.';
+  if (error.status === 400) return error.error?.title ?? 'Invalid request.';
+  if (error.status === 401) return 'Invalid credentials.';
   if (error.status === 404) return 'Resource not found.';
   if (error.status === 409) return 'Conflict. The resource may already exist.';
-  if (error.status >= 500) return 'Internal server error. Please try again later.';
-  return 'An unexpected error occurred.';
+  if (error.status >= 500) return 'Server error. Please try again later.';
+  return error.error?.title ?? error.message ?? 'Unexpected error.';
 }

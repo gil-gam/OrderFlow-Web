@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { DatePipe, CurrencyPipe, SlicePipe } from '@angular/common';
+import { RouterLink, DatePipe, CurrencyPipe, SlicePipe } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { OrderService } from '../../core/services/order.service';
 import { ProductService } from '../../core/services/product.service';
 import { CustomerService } from '../../core/services/customer.service';
@@ -25,8 +25,6 @@ interface StatCard {
   imports: [RouterLink, DatePipe, CurrencyPipe, SlicePipe, LoadingStateComponent],
   templateUrl: './dashboard.component.html',
 })
-
-
 export class DashboardComponent implements OnInit {
   private readonly orderService = inject(OrderService);
   private readonly productService = inject(ProductService);
@@ -34,6 +32,7 @@ export class DashboardComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
 
   readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
   readonly recentOrders = signal<Order[]>([]);
 
   stats: StatCard[] = [];
@@ -43,15 +42,23 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadData(): void {
-    this.orderService.getAll().subscribe((orders) => {
-      this.productService.getAll().subscribe((products) => {
-        this.customerService.getAll().subscribe((customers) => {
-          this.categoryService.getAll().subscribe((categories) => {
-            this.buildDashboard(orders, products, customers, categories);
-            this.loading.set(false);
-          });
-        });
-      });
+    this.loading.set(true);
+    this.error.set(null);
+
+    forkJoin({
+      orders: this.orderService.getAll(),
+      products: this.productService.getAll(),
+      customers: this.customerService.getAll(),
+      categories: this.categoryService.getAll(),
+    }).subscribe({
+      next: ({ orders, products, customers, categories }) => {
+        this.buildDashboard(orders, products, customers, categories);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.error.set(err.message ?? 'Failed to load dashboard data.');
+        this.loading.set(false);
+      },
     });
   }
 
@@ -65,17 +72,21 @@ export class DashboardComponent implements OnInit {
     this.recentOrders.set(sorted.slice(0, 5));
 
     this.stats = [
-      { label: 'Total Orders', value: orders.length, icon: '📦', color: '#3B82F6', route: '/orders' },
-      { label: 'Products', value: products.length, icon: '🏷️', color: '#10B981', route: '/products' },
-      { label: 'Customers', value: customers.length, icon: '👥', color: '#F59E0B', route: '/customers' },
-      { label: 'Categories', value: categories.length, icon: '📁', color: '#8B5CF6', route: '/categories' },
+      { label: 'Total Orders', value: orders.length, icon: '📦', color: '', route: '/orders' },
+      { label: 'Products', value: products.length, icon: '🏷️', color: '', route: '/products' },
+      { label: 'Customers', value: customers.length, icon: '👥', color: '', route: '/customers' },
+      { label: 'Categories', value: categories.length, icon: '📁', color: '', route: '/categories' },
     ];
   }
 
   statusBadge(status: OrderStatus): string {
     const map: Record<OrderStatus, string> = {
-      Pending: 'badge-warning', Confirmed: 'badge-info', Processing: 'badge-info',
-      Shipped: 'badge-info', Delivered: 'badge-success', Cancelled: 'badge-danger',
+      Pending: 'badge-warning',
+      Confirmed: 'badge-info',
+      Processing: 'badge-info',
+      Shipped: 'badge-info',
+      Delivered: 'badge-success',
+      Cancelled: 'badge-danger',
     };
     return map[status] ?? 'badge-info';
   }
