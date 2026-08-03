@@ -1,0 +1,76 @@
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-slate-100">{{ isEdit() ? 'Edit Product' : 'New Product' }}</h1>
+  <p class="mt-1 text-sm text-slate-400">
+    {{ isEdit() ? 'Update the product details below.' : 'Add a new product to the catalog.' }}
+  </p>
+</div>
+
+<div class="rounded-xl border border-slate-800 bg-slate-900 p-6">
+  @if (error()) {
+  <div class="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div class="sm:col-span-2">
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Product Name</label>
+        <input formControlName="name"
+               class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+               [class.border-red-500]="form.get('name')?.invalid && (form.get('name')?.dirty || form.get('name')?.touched)"
+               placeholder="Product name" />
+        <of-validation-error [control]="form.get('name')" />
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Description</label>
+        <textarea formControlName="description" rows="3"
+                  class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+                  placeholder="Brief description of the product"></textarea>
+        <of-validation-error [control]="form.get('description')" />
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Category</label>
+        <select formControlName="categoryId"
+                class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+                [class.border-red-500]="form.get('categoryId')?.invalid && (form.get('categoryId')?.dirty || form.get('categoryId')?.touched)">
+          <option value="">Select category...</option>
+          @for (cat of categories(); track cat.id) {
+          <option [value]="cat.id">{{ cat.name }}</option>
+          }
+        </select>
+        <of-validation-error [control]="form.get('categoryId')" />
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Stock Quantity</label>
+        <input type="number" formControlName="stockQuantity" min="0"
+               class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+               [class.border-red-500]="form.get('stockQuantity')?.invalid && (form.get('stockQuantity')?.dirty || form.get('stockQuantity')?.touched)"
+               placeholder="0" />
+        <of-validation-error [control]="form.get('stockQuantity')" />
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-300">Price (USD)</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+          <input type="number" formControlName="price" min="0.01" step="0.01"
+                 class="w-full rounded-lg border border-slate-700 bg-slate-950 py-2.5 pl-7 pr-3.5 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+                 [class.border-red-500]="form.get('price')?.invalid && (form.get('price')?.dirty || form.get('price')?.touched)"
+                 placeholder="0.00" />
+        </div>
+        <of-validation-error [control]="form.get('price')" />
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between border-t border-slate-800 pt-5">
+      <a routerLink="/products" class="text-sm font-medium text-slate-400 hover:text-slate-200">&larr; Back</a>
+      <button type="submit" [disabled]="form.invalid || submitting()"
+              class="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50">
+        @if (submitting()) { {{ isEdit() ? 'Saving...' : 'Creating...' }} }
+        @else { {{ isEdit() ? 'Save Changes' : 'Create Product' }} }
+      </button>
+    </div>
+  </form>
+</div>

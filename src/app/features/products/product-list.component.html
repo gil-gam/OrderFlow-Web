@@ -1,0 +1,60 @@
+<of-page-header title="Products" subtitle="Manage your product catalog"
+                [showAction]="true" actionLabel="New Product" (action)="navigateToNew()" />
+
+@switch (state()) {
+  @case ('loading') {
+<of-loading-state message="Loading products..." /> }
+  @case ('error') {
+<of-error-state [message]="errorMessage()" (retry)="loadProducts()" /> }
+  @case ('empty') {
+<of-empty-state title="No products" description="Add your first product."
+                [showAction]="true" actionLabel="New Product" (action)="navigateToNew()" />
+  }
+  @case ('ready') {
+<div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm">
+      <thead class="border-b border-slate-800 bg-slate-950/50">
+        <tr>
+          <th class="px-6 py-3 font-medium text-slate-400">Name</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Category</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Price</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Stock</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Status</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800">
+        @for (p of products(); track p.id) {
+        <tr class="hover:bg-slate-800/40">
+          <td class="px-6 py-4 font-medium text-slate-100">{{ p.name }}</td>
+          <td class="px-6 py-4 text-slate-400">{{ p.categoryName || '—' }}</td>
+          <td class="px-6 py-4 font-medium text-slate-100">{{ p.price | currency:'USD' }}</td>
+          <td class="px-6 py-4">
+            <span [class]="p.stockQuantity <= 5 ? 'font-medium text-red-400' : 'text-slate-400'">{{ p.stockQuantity }}</span>
+          </td>
+          <td class="px-6 py-4">
+            <span [class]="p.isActive ? 'badge-success' : 'badge-danger'">{{ p.isActive ? 'Active' : 'Inactive' }}</span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <a [routerLink]="['/products', p.id, 'edit']" class="rounded p-1.5 text-slate-500 hover:text-blue-400" title="Edit">✏️</a>
+              <button (click)="confirmDelete(p)" class="rounded p-1.5 text-slate-500 hover:text-red-400" title="Delete">🗑️</button>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+    @if (showDeleteConfirm()) {
+<of-confirm-dialog title="Delete Product"
+                   [message]="'Permanently delete ' + deletingProduct()?.name + '?'"
+                   confirmLabel="Delete"
+                   (confirm)="deleteProduct()"
+                   (cancel)="showDeleteConfirm.set(false)" />
+    }
+  }
+}

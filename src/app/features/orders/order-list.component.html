@@ -1,0 +1,61 @@
+<of-page-header title="Orders" subtitle="Manage all orders in the system"
+                [showAction]="true" actionLabel="New Order" (action)="navigateToNew()" />
+
+@switch (state()) {
+  @case ('loading') {
+<of-loading-state message="Loading orders..." /> }
+  @case ('error') {
+<of-error-state [message]="errorMessage()" (retry)="loadOrders()" /> }
+  @case ('empty') {
+<of-empty-state title="No orders yet" description="Create your first order to get started."
+                [showAction]="true" actionLabel="New Order" (action)="navigateToNew()" />
+  }
+  @case ('ready') {
+<div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm">
+      <thead class="border-b border-slate-800 bg-slate-950/50">
+        <tr>
+          <th class="px-6 py-3 font-medium text-slate-400">ID</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Customer</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Items</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Total</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Status</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Date</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800">
+        @for (order of orders(); track order.id) {
+        <tr class="hover:bg-slate-800/40">
+          <td class="px-6 py-4 font-mono text-xs text-slate-500">{{ order.id | slice:0:8 }}...</td>
+          <td class="px-6 py-4 font-medium text-slate-100">{{ order.customerName }}</td>
+          <td class="px-6 py-4 text-slate-400">{{ order.items.length }}</td>
+          <td class="px-6 py-4 font-medium text-slate-100">{{ order.totalAmount | currency:'USD' }}</td>
+          <td class="px-6 py-4"><span [class]="badgeClass(order.status)">{{ order.status }}</span></td>
+          <td class="px-6 py-4 text-slate-400">{{ order.createdAt | date:'medium' }}</td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <a [routerLink]="['/orders', order.id]" class="rounded p-1.5 text-slate-500 hover:text-blue-400" title="View">👁️</a>
+              <button (click)="deletingOrder.set(order); showDeleteConfirm.set(true)"
+                      class="rounded p-1.5 text-slate-500 hover:text-red-400" title="Cancel order">
+                ✕
+              </button>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+    @if (showDeleteConfirm()) {
+<of-confirm-dialog title="Cancel Order"
+                   message="Are you sure you want to cancel this order?"
+                   confirmLabel="Cancel Order"
+                   (confirm)="deleteOrder()"
+                   (cancel)="showDeleteConfirm.set(false)" />
+    }
+  }
+}

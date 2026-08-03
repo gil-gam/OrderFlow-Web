@@ -1,0 +1,54 @@
+<of-page-header title="Customers" subtitle="Manage your customer base"
+                [showAction]="true" actionLabel="New Customer" (action)="navigateToNew()" />
+
+@switch (state()) {
+  @case ('loading') {
+<of-loading-state message="Loading customers..." /> }
+  @case ('error') {
+<of-error-state [message]="errorMessage()" (retry)="load()" /> }
+  @case ('empty') {
+<of-empty-state title="No customers" description="Add your first customer."
+                [showAction]="true" actionLabel="New Customer" (action)="navigateToNew()" />
+  }
+  @case ('ready') {
+<div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm">
+      <thead class="border-b border-slate-800 bg-slate-950/50">
+        <tr>
+          <th class="px-6 py-3 font-medium text-slate-400">Name</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Email</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Phone</th>
+          <th class="px-6 py-3 font-medium text-slate-400">City</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800">
+        @for (c of customers(); track c.id) {
+        <tr class="hover:bg-slate-800/40">
+          <td class="px-6 py-4 font-medium text-slate-100">{{ c.name }}</td>
+          <td class="px-6 py-4 text-slate-400">{{ c.email }}</td>
+          <td class="px-6 py-4 text-slate-400">{{ c.phone || '—' }}</td>
+          <td class="px-6 py-4 text-slate-400">{{ c.address?.city || '—' }}</td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <a [routerLink]="['/customers', c.id, 'edit']" class="rounded p-1.5 text-slate-500 hover:text-blue-400" title="Edit">✏️</a>
+              <button (click)="confirmDelete(c)" class="rounded p-1.5 text-slate-500 hover:text-red-400" title="Delete">🗑️</button>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+    @if (showDeleteConfirm()) {
+<of-confirm-dialog title="Delete Customer"
+                   [message]="'Remove ' + deletingCustomer()?.name + ' from the system?'"
+                   confirmLabel="Delete"
+                   (confirm)="deleteCustomer()"
+                   (cancel)="showDeleteConfirm.set(false)" />
+    }
+  }
+}

@@ -15,9 +15,7 @@ import { Component, input, output } from '@angular/core';
         <p class="mt-1 max-w-sm text-sm text-gray-500">{{ description() }}</p>
       }
       @if (showAction()) {
-        <button (click)="action.emit()" class="btn-primary mt-4">
-          {{ actionLabel() }}
-        </button>
+        <button (click)="action.emit()" class="btn-primary mt-4">{{ actionLabel() }}</button>
       }
     </div>
   `,

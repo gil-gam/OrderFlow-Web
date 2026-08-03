@@ -1,0 +1,49 @@
+<div class="rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl shadow-black/40">
+  <div class="mb-6">
+    <h2 class="text-lg font-semibold text-slate-100">Create an account</h2>
+    <p class="mt-1 text-sm text-slate-400">Register to start managing orders.</p>
+  </div>
+
+  @if (error()) {
+  <div class="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5" autocomplete="off">
+    <div>
+      <label for="email" class="mb-1.5 block text-sm font-medium text-slate-300">Email</label>
+      <input id="email" type="email" formControlName="email"
+             class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+             [class.border-red-500]="form.get('email')?.invalid && (form.get('email')?.dirty || form.get('email')?.touched)"
+             placeholder="you@example.com" autocomplete="email" />
+      <of-validation-error [control]="form.get('email')" />
+    </div>
+
+    <div>
+      <label for="password" class="mb-1.5 block text-sm font-medium text-slate-300">Password</label>
+      <input id="password" type="password" formControlName="password"
+             class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+             [class.border-red-500]="form.get('password')?.invalid && (form.get('password')?.dirty || form.get('password')?.touched)"
+             placeholder="Minimum 6 characters" autocomplete="new-password" />
+      <of-validation-error [control]="form.get('password')" />
+    </div>
+
+    <div>
+      <label for="confirmPassword" class="mb-1.5 block text-sm font-medium text-slate-300">Confirm Password</label>
+      <input id="confirmPassword" type="password" formControlName="confirmPassword"
+             class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+             [class.border-red-500]="form.get('confirmPassword')?.invalid && (form.get('confirmPassword')?.dirty || form.get('confirmPassword')?.touched)"
+             placeholder="Repeat your password" autocomplete="new-password" />
+      <of-validation-error [control]="form.get('confirmPassword')" />
+    </div>
+
+    <button type="submit" [disabled]="form.invalid || submitting()"
+            class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50">
+      @if (submitting()) { Creating account... } @else { Create account }
+    </button>
+  </form>
+
+  <p class="mt-5 text-center text-sm text-slate-400">
+    Already have an account?
+    <a routerLink="/auth/login" class="font-medium text-blue-400 hover:text-blue-300">Sign in</a>
+  </p>
+</div>

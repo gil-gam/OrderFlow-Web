@@ -15,9 +15,7 @@ import { Component, input, output } from '@angular/core';
         <p class="mt-1 max-w-md text-sm text-gray-500">{{ message() }}</p>
       }
       @if (showRetry()) {
-        <button (click)="retry.emit()" class="btn-secondary mt-4">
-          Try again
-        </button>
+        <button (click)="retry.emit()" class="btn-secondary mt-4">Try again</button>
       }
     </div>
   `,

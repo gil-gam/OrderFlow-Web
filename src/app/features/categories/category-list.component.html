@@ -1,0 +1,41 @@
+<of-page-header title="Categories" subtitle="Organize products by categories"
+                [showAction]="true" actionLabel="New Category" (action)="navigateToNew()" />
+
+@switch (state()) {
+  @case ('loading') {
+<of-loading-state message="Loading categories..." /> }
+  @case ('error') {
+<of-error-state [message]="errorMessage()" (retry)="load()" /> }
+  @case ('empty') {
+<of-empty-state title="No categories" description="Create your first category to organize products."
+                [showAction]="true" actionLabel="New Category" (action)="navigateToNew()" />
+  }
+  @case ('ready') {
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  @for (cat of categories(); track cat.id) {
+  <div class="group relative rounded-xl border border-slate-800 bg-slate-900 p-5 transition hover:border-slate-700">
+    <div class="flex items-start justify-between">
+      <div>
+        <h3 class="font-semibold text-slate-100">{{ cat.name }}</h3>
+        @if (cat.description) {
+        <p class="mt-1 line-clamp-2 text-sm text-slate-400">{{ cat.description }}</p>
+        }
+      </div>
+      <div class="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        <a [routerLink]="['/categories', cat.id, 'edit']" class="rounded p-1.5 text-slate-500 hover:text-blue-400" title="Edit">✏️</a>
+        <button (click)="confirmDelete(cat)" class="rounded p-1.5 text-slate-500 hover:text-red-400" title="Delete">🗑️</button>
+      </div>
+    </div>
+  </div>
+  }
+</div>
+
+    @if (showDeleteConfirm()) {
+<of-confirm-dialog title="Delete Category"
+                   [message]="'Are you sure you want to delete ' + deletingCategory()?.name + '?'"
+                   confirmLabel="Delete"
+                   (confirm)="deleteCategory()"
+                   (cancel)="showDeleteConfirm.set(false)" />
+    }
+  }
+}

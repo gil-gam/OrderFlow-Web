@@ -1,0 +1,68 @@
+@switch (state()) {
+  @case ('loading') {
+<of-loading-state message="Loading order details..." /> }
+  @case ('error') {
+<of-error-state [message]="errorMessage()" (retry)="loadOrder()" /> }
+  @case ('ready') {
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <a routerLink="/orders" class="mb-2 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200">← Back to orders</a>
+    <h1 class="text-2xl font-bold text-slate-100">Order #{{ order()?.id | slice:0:8 }}</h1>
+  </div>
+  <span [class]="badgeClass(order()!.status)">{{ order()?.status }}</span>
+</div>
+
+<div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <div class="rounded-xl border border-slate-800 bg-slate-900">
+    <div class="border-b border-slate-800 px-6 py-4"><h2 class="text-sm font-semibold text-slate-100">Customer</h2></div>
+    <div class="px-6 py-5">
+      <p class="font-medium text-slate-100">{{ order()?.customerName }}</p>
+      <p class="mt-1 text-sm text-slate-400">ID: {{ order()?.customerId }}</p>
+    </div>
+  </div>
+  <div class="rounded-xl border border-slate-800 bg-slate-900">
+    <div class="border-b border-slate-800 px-6 py-4"><h2 class="text-sm font-semibold text-slate-100">Summary</h2></div>
+    <div class="space-y-2 px-6 py-5">
+      <div class="flex justify-between text-sm">
+        <span class="text-slate-400">Total items</span>
+        <span class="font-medium text-slate-100">{{ order()?.items?.length }}</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-slate-400">Order date</span>
+        <span class="font-medium text-slate-100">{{ order()?.createdAt | date:'medium' }}</span>
+      </div>
+      <div class="flex justify-between border-t border-slate-800 pt-2 text-base">
+        <span class="font-semibold text-slate-100">Total</span>
+        <span class="font-bold text-slate-100">{{ order()?.totalAmount | currency:'USD' }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="rounded-xl border border-slate-800 bg-slate-900">
+  <div class="border-b border-slate-800 px-6 py-4"><h2 class="text-sm font-semibold text-slate-100">Items</h2></div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm">
+      <thead class="border-b border-slate-800 bg-slate-950/50">
+        <tr>
+          <th class="px-6 py-3 font-medium text-slate-400">Product</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Unit Price</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Quantity</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Total</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800">
+        @for (item of order()?.items; track item.productId) {
+        <tr>
+          <td class="px-6 py-4 font-medium text-slate-100">{{ item.productName }}</td>
+          <td class="px-6 py-4 text-slate-400">{{ item.unitPrice | currency:'USD' }}</td>
+          <td class="px-6 py-4 text-slate-400">{{ item.quantity }}</td>
+          <td class="px-6 py-4 font-medium text-slate-100">{{ item.totalPrice | currency:'USD' }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+  }
+}

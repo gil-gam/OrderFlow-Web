@@ -13,5 +13,5 @@ import { Component, input } from '@angular/core';
   `,
 })
 export class LoadingStateComponent {
-  readonly message = input('Loading...');
+  readonly message = input<string>();
 }
