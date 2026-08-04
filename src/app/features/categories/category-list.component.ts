@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CategoryService } from '../../core/services/category.service';
 import { Category } from '../../core/models/category.model';
 import { PageHeaderComponent } from '../../shared/components/page-header.component';
@@ -17,10 +17,9 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.c
   ],
   templateUrl: './category-list.component.html',
 })
-
-  
 export class CategoryListComponent implements OnInit {
   private readonly service = inject(CategoryService);
+  private readonly router = inject(Router);
 
   readonly categories = signal<Category[]>([]);
   readonly state = signal<'loading' | 'error' | 'empty' | 'ready'>('loading');
@@ -38,7 +37,8 @@ export class CategoryListComponent implements OnInit {
     });
   }
 
-  navigateToNew(): void { }
+  navigateToNew(): void { this.router.navigate(['/categories/new']); }
+
   confirmDelete(c: Category): void { this.deletingCategory.set(c); this.showDeleteConfirm.set(true); }
 
   deleteCategory(): void {

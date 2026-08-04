@@ -1,8 +1,8 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { DatePipe, CurrencyPipe, SlicePipe } from '@angular/common';
 import { OrderService } from '../../core/services/order.service';
-import { Order, OrderStatus } from '../../core/models/order.model';
+import { Order } from '../../core/models/order.model';
 import { PageHeaderComponent } from '../../shared/components/page-header.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state.component';
@@ -12,11 +12,11 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.c
 @Component({
   selector: 'of-order-list',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe],
+  imports: [RouterLink, DatePipe, CurrencyPipe, SlicePipe, PageHeaderComponent, LoadingStateComponent, EmptyStateComponent, ErrorStateComponent, ConfirmDialogComponent],
   templateUrl: './order-list.component.html',
 })
 export class OrderListComponent implements OnInit {
-  private readonly orderService = inject(OrderService);
+  private readonly service = inject(OrderService);
   private readonly router = inject(Router);
 
   readonly orders = signal<Order[]>([]);
@@ -25,52 +25,39 @@ export class OrderListComponent implements OnInit {
   readonly showDeleteConfirm = signal(false);
   readonly deletingOrder = signal<Order | null>(null);
 
-  ngOnInit(): void {
-    this.loadOrders();
-  }
+  ngOnInit(): void { this.loadOrders(); }
 
   loadOrders(): void {
     this.state.set('loading');
-    this.orderService.getAll().subscribe({
-      next: (data) => {
-        // getAll() retorna PaginatedList → usamos .items
-        this.orders.set(data.items);
-        this.state.set(data.items.length ? 'ready' : 'empty');
+    this.service.getAll().subscribe({
+      next: (page) => {
+        this.orders.set(page.items);
+        this.state.set(page.items.length ? 'ready' : 'empty');
       },
-      error: (err) => {
-        this.errorMessage.set(err.message);
-        this.state.set('error');
-      },
+      error: (err) => { this.errorMessage.set(err.message); this.state.set('error'); },
     });
   }
 
-  navigateToNew(): void {
-    this.router.navigate(['/orders/new']);
-  }
+  navigateToNew(): void { this.router.navigate(['/orders/new']); }
 
-  badgeClass(status: OrderStatus): string {
-    const map: Record<OrderStatus, string> = {
-      Pending: 'badge-warning', Confirmed: 'badge-info', Processing: 'badge-info',
-      Shipped: 'badge-info', Delivered: 'badge-success', Cancelled: 'badge-danger',
-    };
-    return map[status] ?? 'badge-info';
-  }
-
-  confirmDelete(order: Order): void {
-    this.deletingOrder.set(order);
-    this.showDeleteConfirm.set(true);
-  }
+  confirmDelete(o: Order): void { this.deletingOrder.set(o); this.showDeleteConfirm.set(true); }
 
   deleteOrder(): void {
-    const order = this.deletingOrder();
-    if (!order) return;
+    const o = this.deletingOrder();
+    if (!o) return;
     this.showDeleteConfirm.set(false);
-    this.orderService.delete(order.id).subscribe({
-      next: () => this.loadOrders(),
-      error: (err) => {
-        this.errorMessage.set(err.message);
-        this.state.set('error');
-      },
-    });
+    this.service.delete(o.id).subscribe(() => this.loadOrders());
+  }
+
+  badgeClass(status: string): string {
+    const map: Record<string, string> = {
+      Pending: 'badge-warning',
+      Confirmed: 'badge-info',
+      Processing: 'badge-info',
+      Shipped: 'badge-info',
+      Delivered: 'badge-success',
+      Cancelled: 'badge-danger',
+    };
+    return map[status] ?? 'badge-info';
   }
 }

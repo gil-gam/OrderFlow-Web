@@ -5,11 +5,12 @@ import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
 import { Category } from '../../core/models/category.model';
 import { CreateProductRequest, UpdateProductRequest } from '../../core/models/product.model';
+import { ValidationErrorComponent } from '../../shared/components/validation-error.component';
 
 @Component({
   selector: 'of-product-form',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, ValidationErrorComponent],
   templateUrl: './product-form.component.html',
 })
 export class ProductFormComponent implements OnInit {

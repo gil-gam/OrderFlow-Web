@@ -1,15 +1,15 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { DatePipe, CurrencyPipe } from '@angular/common';
-import { forkJoin } from 'rxjs';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { DatePipe, CurrencyPipe, SlicePipe } from '@angular/common';
 import { OrderService } from '../../core/services/order.service';
 import { ProductService } from '../../core/services/product.service';
 import { CustomerService } from '../../core/services/customer.service';
 import { CategoryService } from '../../core/services/category.service';
-import { LoadingStateComponent } from '../../shared/components/loading-state.component';
 import { Order, OrderStatus } from '../../core/models/order.model';
 import { Product } from '../../core/models/product.model';
 import { Customer } from '../../core/models/customer.model';
 import { Category } from '../../core/models/category.model';
+import { LoadingStateComponent } from '../../shared/components/loading-state.component';
 
 interface StatCard {
   label: string;
@@ -22,7 +22,7 @@ interface StatCard {
 @Component({
   selector: 'of-dashboard',
   standalone: true,
-  imports: [DatePipe, CurrencyPipe],
+  imports: [RouterLink, DatePipe, CurrencyPipe, SlicePipe, LoadingStateComponent],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
@@ -32,9 +32,7 @@ export class DashboardComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
 
   readonly loading = signal(true);
-  readonly error = signal<string | null>(null);
   readonly recentOrders = signal<Order[]>([]);
-
   stats: StatCard[] = [];
 
   ngOnInit(): void {
@@ -42,30 +40,24 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadData(): void {
-    this.loading.set(true);
-    this.error.set(null);
-
-    forkJoin({
-      orders: this.orderService.getAll(),
-      products: this.productService.getAll(),
-      customers: this.customerService.getAll(),
-      categories: this.categoryService.getAll(),
-    }).subscribe({
-      next: ({ orders, products, customers, categories }) => {
-        // getAll() de orders retorna PaginatedList; usamos .items
-        this.buildDashboard(orders.items, products, customers, categories);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set(err.message ?? 'Failed to load dashboard data.');
-        this.loading.set(false);
-      },
+    this.orderService.getAll().subscribe((page) => {
+      const orders = page.items;
+      this.productService.getAll().subscribe((products) => {
+        this.customerService.getAll().subscribe((customers) => {
+          this.categoryService.getAll().subscribe((categories) => {
+            this.buildDashboard(orders, products, customers, categories);
+            this.loading.set(false);
+          });
+        });
+      });
     });
   }
 
   private buildDashboard(
-    orders: Order[], products: Product[],
-    customers: Customer[], categories: Category[]
+    orders: Order[],
+    products: Product[],
+    customers: Customer[],
+    categories: Category[]
   ): void {
     const sorted = [...orders].sort(
       (a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
@@ -73,10 +65,10 @@ export class DashboardComponent implements OnInit {
     this.recentOrders.set(sorted.slice(0, 5));
 
     this.stats = [
-      { label: 'Total Orders', value: orders.length, icon: '📦', color: '', route: '/orders' },
-      { label: 'Products', value: products.length, icon: '🏷️', color: '', route: '/products' },
-      { label: 'Customers', value: customers.length, icon: '👥', color: '', route: '/customers' },
-      { label: 'Categories', value: categories.length, icon: '📁', color: '', route: '/categories' },
+      { label: 'Total Orders', value: orders.length, icon: '📦', color: '#3B82F6', route: '/orders' },
+      { label: 'Products', value: products.length, icon: '🏷️', color: '#10B981', route: '/products' },
+      { label: 'Customers', value: customers.length, icon: '👥', color: '#F59E0B', route: '/customers' },
+      { label: 'Categories', value: categories.length, icon: '📁', color: '#8B5CF6', route: '/categories' },
     ];
   }
 

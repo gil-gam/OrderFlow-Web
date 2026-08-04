@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { CustomerListComponent } from './customer-list.component';
 import { CustomerService } from '../../core/services/customer.service';
@@ -15,20 +15,20 @@ describe('CustomerListComponent', () => {
     {
       id: '1', name: 'John Doe', email: 'john@test.com', phone: '11999999999',
       address: { street: 'Rua A', city: 'Curitiba', state: 'PR', zipCode: '80000', country: 'BR' },
-      createdAt: baseDate, updatedAt: baseDate
+      createdAt: baseDate, updatedAt: baseDate,
     },
     {
       id: '2', name: 'Jane Doe', email: 'jane@test.com', phone: '11888888888',
       address: { street: 'Rua B', city: 'São Paulo', state: 'SP', zipCode: '01000', country: 'BR' },
-      createdAt: baseDate, updatedAt: baseDate
-    }
+      createdAt: baseDate, updatedAt: baseDate,
+    },
   ];
 
   beforeEach(async () => {
     customerServiceMock = jasmine.createSpyObj('CustomerService', ['getAll', 'delete']);
     await TestBed.configureTestingModule({
-      imports: [CustomerListComponent, RouterTestingModule.withRoutes([])],
-      providers: [{ provide: CustomerService, useValue: customerServiceMock }]
+      imports: [CustomerListComponent],
+      providers: [provideRouter([]), { provide: CustomerService, useValue: customerServiceMock }],
     }).compileComponents();
   });
 

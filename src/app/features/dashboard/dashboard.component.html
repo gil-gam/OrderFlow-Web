@@ -1,34 +1,56 @@
-<div class="container mx-auto p-6 bg-slate-900 text-white min-h-screen">
-  <h1 class="text-3xl font-bold mb-8">Dashboard</h1>
+@if (loading()) {
+<of-loading-state message="Loading dashboard data..." />
+} @else {
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-slate-100">Dashboard</h1>
+  <p class="mt-1 text-sm text-slate-400">Overview of your order management system.</p>
+</div>
 
-  <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-    <div class="p-6 border-b border-slate-700">
-      <h2 class="text-xl font-bold">Recent Orders</h2>
+<div class="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+  @for (stat of stats; track stat.label) {
+  <a [routerLink]="stat.route"
+     class="group cursor-pointer rounded-xl border border-slate-800 bg-slate-900 p-5 transition hover:border-slate-700 hover:shadow-lg hover:shadow-black/30">
+    <div class="flex items-start justify-between">
+      <div>
+        <p class="text-sm font-medium text-slate-400">{{ stat.label }}</p>
+        <p class="mt-1 text-3xl font-bold text-slate-100">{{ stat.value }}</p>
+      </div>
+      <div class="rounded-lg p-3" [style.backgroundColor]="stat.color + '1f'">
+        <span class="text-2xl">{{ stat.icon }}</span>
+      </div>
     </div>
+  </a>
+  }
+</div>
 
-    <table class="w-full text-left">
-      <thead class="bg-slate-900/50 text-slate-400 text-xs uppercase">
+<div class="rounded-xl border border-slate-800 bg-slate-900">
+  <div class="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+    <h2 class="text-base font-semibold text-slate-100">Recent Orders</h2>
+    <a routerLink="/orders" class="text-sm font-medium text-blue-400 hover:text-blue-300">View all &rarr;</a>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm">
+      <thead class="border-b border-slate-800 bg-slate-950/50">
         <tr>
-          <th class="p-4">Customer</th>
-          <th class="p-4">Date</th>
-          <th class="p-4">Amount</th>
-          <th class="p-4">Status</th>
+          <th class="px-6 py-3 font-medium text-slate-400">ID</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Customer</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Status</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Total</th>
+          <th class="px-6 py-3 font-medium text-slate-400">Date</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-slate-700">
+      <tbody class="divide-y divide-slate-800">
         @for (order of recentOrders(); track order.id) {
-        <tr class="hover:bg-slate-700/30 transition-colors">
-          <td class="p-4 font-medium">{{ order.customerName }}</td>
-          <td class="p-4 text-slate-400 text-sm">{{ order.orderDate | date:'mediumDate' }}</td>
-          <td class="p-4 font-bold text-emerald-400">{{ order.totalAmount | currency:'USD' }}</td>
-          <td class="p-4">
-            <span [class]="statusBadge(order.status)" class="px-2 py-1 rounded text-xs font-bold">
-              {{ order.status }}
-            </span>
-          </td>
+        <tr class="hover:bg-slate-800/40">
+          <td class="px-6 py-4 font-mono text-xs text-slate-500">{{ order.id | slice:0:8 }}...</td>
+          <td class="px-6 py-4 font-medium text-slate-100">{{ order.customerName }}</td>
+          <td class="px-6 py-4"><span [class]="statusBadge(order.status)">{{ order.status }}</span></td>
+          <td class="px-6 py-4 font-medium text-slate-100">{{ order.totalAmount | currency:'USD' }}</td>
+          <td class="px-6 py-4 text-slate-400">{{ order.orderDate | date:'medium' }}</td>
         </tr>
         }
       </tbody>
     </table>
   </div>
 </div>
+}

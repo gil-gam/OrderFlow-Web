@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CustomerService } from '../../core/services/customer.service';
 import { Customer } from '../../core/models/customer.model';
 import { PageHeaderComponent } from '../../shared/components/page-header.component';
@@ -17,10 +17,9 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.c
   ],
   templateUrl: './customer-list.component.html',
 })
-
-
 export class CustomerListComponent implements OnInit {
   private readonly service = inject(CustomerService);
+  private readonly router = inject(Router);
 
   readonly customers = signal<Customer[]>([]);
   readonly state = signal<'loading' | 'error' | 'empty' | 'ready'>('loading');
@@ -38,7 +37,8 @@ export class CustomerListComponent implements OnInit {
     });
   }
 
-  navigateToNew(): void { }
+  navigateToNew(): void { this.router.navigate(['/customers/new']); }
+
   confirmDelete(c: Customer): void { this.deletingCustomer.set(c); this.showDeleteConfirm.set(true); }
 
   deleteCustomer(): void {

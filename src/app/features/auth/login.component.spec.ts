@@ -1,11 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../core/services/auth.service';
-import { ValidationErrorComponent } from '../../shared/components/validation-error.component';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -13,21 +10,16 @@ describe('LoginComponent', () => {
   let authServiceMock: jasmine.SpyObj<AuthService>;
   let router: Router;
 
-  const mockAuthResponse = { token: 't', email: 'a@b.com', expiresAt: '2026-12-31T23:59:59Z' };
+  const mockAuthResponse = { token: 't', email: 'a@b.com', expiresAt: '2026-12-31T23:59:59Z', userId: 'u1' };
 
   beforeEach(async () => {
     authServiceMock = jasmine.createSpyObj('AuthService', ['login']);
-
     await TestBed.configureTestingModule({
-      imports: [LoginComponent, ReactiveFormsModule, ValidationErrorComponent, RouterTestingModule.withRoutes([])],
-      providers: [
-        { provide: AuthService, useValue: authServiceMock }
-      ]
+      imports: [LoginComponent],
+      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceMock }],
     }).compileComponents();
-
     router = TestBed.inject(Router);
     spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
-
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -55,21 +47,21 @@ describe('LoginComponent', () => {
 
   it('should call authService.login on submit', () => {
     authServiceMock.login.and.returnValue(of(mockAuthResponse));
-    component.form.setValue({ email: 'a@b.com', password: '123456' });
+    component.form.setValue({ email: 'a@b.com', password: '123456', remember: false });
     component.onSubmit();
     expect(authServiceMock.login).toHaveBeenCalledWith({ email: 'a@b.com', password: '123456' });
   });
 
   it('should navigate to /dashboard on success', () => {
     authServiceMock.login.and.returnValue(of(mockAuthResponse));
-    component.form.setValue({ email: 'a@b.com', password: '123456' });
+    component.form.setValue({ email: 'a@b.com', password: '123456', remember: false });
     component.onSubmit();
     expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
   it('should set error signal on failure', () => {
     authServiceMock.login.and.returnValue(throwError(() => ({ message: 'Invalid' })));
-    component.form.setValue({ email: 'a@b.com', password: '123456' });
+    component.form.setValue({ email: 'a@b.com', password: '123456', remember: false });
     component.onSubmit();
     expect(component.error()).toBeTruthy();
     expect(component.submitting()).toBeFalse();

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { OrderListComponent } from './order-list.component';
 import { OrderService } from '../../core/services/order.service';
@@ -18,19 +18,24 @@ describe('OrderListComponent', () => {
     {
       id: '2', customerId: 'c2', customerName: 'Jane', orderDate: baseDate, status: 'Delivered' as const,
       items: [], totalAmount: 200, createdAt: baseDate, updatedAt: baseDate
-    }
+    },
   ];
+
+  const paginated = (items: unknown[]) => ({
+    items, totalCount: items.length, page: 1, pageSize: 10,
+    totalPages: items.length ? 1 : 0, hasNextPage: false, hasPreviousPage: false,
+  });
 
   beforeEach(async () => {
     orderServiceMock = jasmine.createSpyObj('OrderService', ['getAll', 'delete']);
     await TestBed.configureTestingModule({
-      imports: [OrderListComponent, RouterTestingModule.withRoutes([])],
-      providers: [{ provide: OrderService, useValue: orderServiceMock }]
+      imports: [OrderListComponent],
+      providers: [provideRouter([]), { provide: OrderService, useValue: orderServiceMock }],
     }).compileComponents();
   });
 
   it('should load orders on init', () => {
-    orderServiceMock.getAll.and.returnValue(of(mockOrders));
+    orderServiceMock.getAll.and.returnValue(of(paginated(mockOrders)));
     fixture = TestBed.createComponent(OrderListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -39,7 +44,7 @@ describe('OrderListComponent', () => {
   });
 
   it('should show empty state', () => {
-    orderServiceMock.getAll.and.returnValue(of([]));
+    orderServiceMock.getAll.and.returnValue(of(paginated([])));
     fixture = TestBed.createComponent(OrderListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -55,7 +60,7 @@ describe('OrderListComponent', () => {
   });
 
   it('should return correct badge class', () => {
-    orderServiceMock.getAll.and.returnValue(of([]));
+    orderServiceMock.getAll.and.returnValue(of(paginated([])));
     fixture = TestBed.createComponent(OrderListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -64,7 +69,7 @@ describe('OrderListComponent', () => {
   });
 
   it('should confirmDelete and delete', () => {
-    orderServiceMock.getAll.and.returnValue(of(mockOrders));
+    orderServiceMock.getAll.and.returnValue(of(paginated(mockOrders)));
     orderServiceMock.delete.and.returnValue(of(void 0));
     fixture = TestBed.createComponent(OrderListComponent);
     component = fixture.componentInstance;

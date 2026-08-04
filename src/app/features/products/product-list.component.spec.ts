@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ProductListComponent } from './product-list.component';
 import { ProductService } from '../../core/services/product.service';
@@ -12,21 +12,15 @@ describe('ProductListComponent', () => {
 
   const baseDate = '2026-01-01T00:00:00Z';
   const mockProducts: Product[] = [
-    {
-      id: '1', name: 'Laptop', price: 1500, stockQuantity: 10, categoryId: '1', categoryName: 'Electronics',
-      isActive: true, description: '', createdAt: baseDate, updatedAt: baseDate
-    },
-    {
-      id: '2', name: 'T-Shirt', price: 25, stockQuantity: 0, categoryId: '2', categoryName: 'Clothing',
-      isActive: true, description: '', createdAt: baseDate, updatedAt: baseDate
-    }
+    { id: '1', name: 'Laptop', unitPrice: 1500, currency: 'USD', stockQuantity: 10, categoryId: '1', categoryName: 'Electronics', isActive: true, description: '', createdAt: baseDate },
+    { id: '2', name: 'T-Shirt', unitPrice: 25, currency: 'USD', stockQuantity: 0, categoryId: '2', categoryName: 'Clothing', isActive: true, description: '', createdAt: baseDate },
   ];
 
   beforeEach(async () => {
     productServiceMock = jasmine.createSpyObj('ProductService', ['getAll', 'delete']);
     await TestBed.configureTestingModule({
-      imports: [ProductListComponent, RouterTestingModule.withRoutes([])],
-      providers: [{ provide: ProductService, useValue: productServiceMock }]
+      imports: [ProductListComponent],
+      providers: [provideRouter([]), { provide: ProductService, useValue: productServiceMock }],
     }).compileComponents();
   });
 

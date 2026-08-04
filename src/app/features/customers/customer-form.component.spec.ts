@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { CustomerFormComponent } from './customer-form.component';
 import { CustomerService } from '../../core/services/customer.service';
 import { ValidationErrorComponent } from '../../shared/components/validation-error.component';
@@ -16,60 +16,61 @@ describe('CustomerFormComponent', () => {
   const mockCustomer = {
     id: '1', name: 'John Doe', email: 'john@test.com', phone: '11999999999',
     address: { street: '123 Main St', city: 'New York', state: 'NY', zipCode: '10001', country: 'US' },
-    createdAt: baseDate, updatedAt: baseDate
+    createdAt: baseDate, updatedAt: baseDate,
   };
 
-  const createComponent = (isEdit = false) => {
+  const createComponent = async (isEdit = false) => {
     customerServiceMock = jasmine.createSpyObj('CustomerService', ['getById', 'create', 'update']);
     routerMock = jasmine.createSpyObj('Router', ['navigate']);
     if (isEdit) customerServiceMock.getById.and.returnValue(of(mockCustomer));
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       imports: [CustomerFormComponent, ReactiveFormsModule, ValidationErrorComponent],
       providers: [
         { provide: CustomerService, useValue: customerServiceMock },
         { provide: Router, useValue: routerMock },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => isEdit ? '1' : null } } } }
-      ]
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => (isEdit ? '1' : null) } } } },
+      ],
     }).compileComponents();
+
     fixture = TestBed.createComponent(CustomerFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   };
 
-  it('should create', () => { createComponent(); expect(component).toBeTruthy(); });
+  it('should create', async () => { await createComponent(); expect(component).toBeTruthy(); });
 
-  it('should initialize empty form', () => {
-    createComponent();
+  it('should initialize empty form', async () => {
+    await createComponent();
     expect(component.form.get('name')?.value).toBe('');
     expect(component.form.get('email')?.value).toBe('');
   });
 
-  it('should validate required fields', () => {
-    createComponent();
+  it('should validate required fields', async () => {
+    await createComponent();
     expect(component.form.valid).toBeFalse();
     component.form.patchValue({ name: 'New', email: 'new@test.com' });
     expect(component.form.valid).toBeTrue();
   });
 
-  it('should call create on submit', () => {
-    createComponent();
+  it('should call create on submit', async () => {
+    await createComponent();
     customerServiceMock.create.and.returnValue(of({ ...mockCustomer, id: '3' }));
     component.form.patchValue({ name: 'New', email: 'new@test.com', phone: '' });
     component.onSubmit();
     expect(customerServiceMock.create).toHaveBeenCalled();
   });
 
-  it('should navigate to /customers on success', () => {
-    createComponent();
+  it('should navigate to /customers on success', async () => {
+    await createComponent();
     customerServiceMock.create.and.returnValue(of({ ...mockCustomer, id: '3' }));
     component.form.patchValue({ name: 'New', email: 'new@test.com', phone: '' });
     component.onSubmit();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/customers']);
   });
 
-  it('should load data in edit mode', () => {
-    createComponent(true);
+  it('should load data in edit mode', async () => {
+    await createComponent(true);
     expect(customerServiceMock.getById).toHaveBeenCalledWith('1');
     expect(component.isEdit()).toBeTrue();
     expect(component.form.get('name')?.value).toBe('John Doe');

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { CategoryListComponent } from './category-list.component';
 import { CategoryService } from '../../core/services/category.service';
@@ -12,15 +12,15 @@ describe('CategoryListComponent', () => {
 
   const baseDate = '2026-01-01T00:00:00Z';
   const mockCategories: Category[] = [
-    { id: '1', name: 'Electronics', description: 'Electronic items', createdAt: baseDate, updatedAt: baseDate },
-    { id: '2', name: 'Clothing', description: 'Apparel', createdAt: baseDate, updatedAt: baseDate }
+    { id: '1', name: 'Electronics', description: 'Electronic items', isActive: true, createdAt: baseDate },
+    { id: '2', name: 'Clothing', description: 'Apparel', isActive: true, createdAt: baseDate },
   ];
 
   beforeEach(async () => {
     categoryServiceMock = jasmine.createSpyObj('CategoryService', ['getAll', 'delete']);
     await TestBed.configureTestingModule({
-      imports: [CategoryListComponent, RouterTestingModule.withRoutes([])],
-      providers: [{ provide: CategoryService, useValue: categoryServiceMock }]
+      imports: [CategoryListComponent],
+      providers: [provideRouter([]), { provide: CategoryService, useValue: categoryServiceMock }],
     }).compileComponents();
   });
 

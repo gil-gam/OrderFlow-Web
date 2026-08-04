@@ -1,13 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { OrderFormComponent } from './order-form.component';
 import { OrderService } from '../../core/services/order.service';
 import { CustomerService } from '../../core/services/customer.service';
 import { ProductService } from '../../core/services/product.service';
-import { ValidationErrorComponent } from '../../shared/components/validation-error.component';
 
 describe('OrderFormComponent', () => {
   let component: OrderFormComponent;
@@ -22,22 +19,28 @@ describe('OrderFormComponent', () => {
 
     const customerSvc = jasmine.createSpyObj('CustomerService', ['getAll']);
     const productSvc = jasmine.createSpyObj('ProductService', ['getAll']);
-    customerSvc.getAll.and.returnValue(of([{
-      id: '1', name: 'John', email: 'john@test.com', phone: '',
-      address: { street: '', city: '', state: '', zipCode: '', country: '' }, createdAt: baseDate, updatedAt: baseDate
-    }]));
-    productSvc.getAll.and.returnValue(of([{
-      id: '1', name: 'Laptop', description: '', price: 1500, stockQuantity: 10,
-      categoryId: '1', categoryName: 'Electronics', isActive: true, createdAt: baseDate, updatedAt: baseDate
-    }]));
+    customerSvc.getAll.and.returnValue(of([
+      {
+        id: '1', name: 'John', email: 'john@test.com', phone: '',
+        address: { street: '', city: '', state: '', zipCode: '', country: '' },
+        createdAt: baseDate, updatedAt: baseDate
+      },
+    ]));
+    productSvc.getAll.and.returnValue(of([
+      {
+        id: '1', name: 'Laptop', description: '', unitPrice: 1500, currency: 'USD',
+        stockQuantity: 10, categoryId: '1', categoryName: 'Electronics', isActive: true, createdAt: baseDate
+      },
+    ]));
 
     await TestBed.configureTestingModule({
-      imports: [OrderFormComponent, ReactiveFormsModule, ValidationErrorComponent, RouterTestingModule.withRoutes([])],
+      imports: [OrderFormComponent],
       providers: [
+        provideRouter([]),
         { provide: OrderService, useValue: orderServiceMock },
         { provide: CustomerService, useValue: customerSvc },
-        { provide: ProductService, useValue: productSvc }
-      ]
+        { provide: ProductService, useValue: productSvc },
+      ],
     }).compileComponents();
 
     router = TestBed.inject(Router);
@@ -71,7 +74,10 @@ describe('OrderFormComponent', () => {
     component.addItem();
     component.items.at(0).patchValue({ productId: '1', quantity: 2 });
     component.onSubmit();
-    expect(orderServiceMock.create).toHaveBeenCalled();
+    expect(orderServiceMock.create).toHaveBeenCalledWith({
+      customerId: '1',
+      items: [{ productId: '1', quantity: 2 }],
+    });
   });
 
   it('should navigate to /orders on success', () => {

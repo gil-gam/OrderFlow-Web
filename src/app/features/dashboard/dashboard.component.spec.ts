@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { DashboardComponent } from './dashboard.component';
 import { OrderService } from '../../core/services/order.service';
@@ -11,15 +11,21 @@ describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
 
+  const emptyPage = {
+    items: [], totalCount: 0, page: 1, pageSize: 10,
+    totalPages: 0, hasNextPage: false, hasPreviousPage: false,
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardComponent, RouterTestingModule.withRoutes([])],
+      imports: [DashboardComponent],
       providers: [
+        provideRouter([]),
         { provide: OrderService, useValue: jasmine.createSpyObj('OrderService', ['getAll']) },
         { provide: ProductService, useValue: jasmine.createSpyObj('ProductService', ['getAll']) },
         { provide: CustomerService, useValue: jasmine.createSpyObj('CustomerService', ['getAll']) },
-        { provide: CategoryService, useValue: jasmine.createSpyObj('CategoryService', ['getAll']) }
-      ]
+        { provide: CategoryService, useValue: jasmine.createSpyObj('CategoryService', ['getAll']) },
+      ],
     }).compileComponents();
   });
 
@@ -29,7 +35,7 @@ describe('DashboardComponent', () => {
     const customerSvc = TestBed.inject(CustomerService) as jasmine.SpyObj<CustomerService>;
     const categorySvc = TestBed.inject(CategoryService) as jasmine.SpyObj<CategoryService>;
 
-    orderSvc.getAll.and.returnValue(of([]));
+    orderSvc.getAll.and.returnValue(of(emptyPage));
     productSvc.getAll.and.returnValue(of([]));
     customerSvc.getAll.and.returnValue(of([]));
     categorySvc.getAll.and.returnValue(of([]));
